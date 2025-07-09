@@ -33,12 +33,19 @@ jobs:
       - name: Install OpenCC
         run: sudo apt-get update && sudo apt-get install -y opencc
 
-      - name: Convert .java & .yml to Traditional Chinese (Taiwan)
+      - name: Convert .java files to Traditional Chinese
         run: |
-          find ExtraGear -type f \( -name "*.java" -o -name "*.yml" \) \
+          find ExtraGear/src -type f -name "*.java" \
             | while read file; do
                 opencc -i "$file" -o "$file.tmp" -c s2twp.json && mv "$file.tmp" "$file"
               done
+
+      - name: Convert zh-CN.yml to zh-TW.yml
+        run: |
+          if [ -f ExtraGear/src/main/resources/languages/zh-CN.yml ]; then
+            cp ExtraGear/src/main/resources/languages/zh-CN.yml ExtraGear/src/main/resources/languages/zh-TW.yml
+            opencc -i ExtraGear/src/main/resources/languages/zh-TW.yml -o ExtraGear/src/main/resources/languages/zh-TW.yml -c s2twp.json
+          fi
 
       - name: Replace zh-CN with zh-TW in config.yml
         run: |

@@ -18,7 +18,7 @@ jobs:
           java-package: jdk
           architecture: x64
 
-      - name: Checkout
+      - name: Checkout your repository
         uses: actions/checkout@v3
 
       - name: Setup Git
@@ -26,34 +26,31 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Pull from upstream
+      - name: Clone Galactifun
         run: |
           git clone https://github.com/SlimefunGuguProject/Galactifun.git
-          cd Galactifun
-          rsync -a ./ ../
-          cd ..
-          rm -rf Galactifun
 
       - name: Install OpenCC
         run: sudo apt-get update && sudo apt-get install -y opencc
 
       - name: Convert .java & .yml to Traditional Chinese (Taiwan)
         run: |
-          find . -type f \( -name "*.java" -o -name "*.yml" \) -print \
+          find Galactifun -type f \( -name "*.java" -o -name "*.yml" \) -print \
             | while read file; do
                 opencc -i "$file" -o "$file.tmp" -c s2twp.json && mv "$file.tmp" "$file"
               done
 
       - name: Replace zh-CN with zh-TW in config.yml
         run: |
-          find . -name config.yml -exec sed -i 's/zh-CN/zh-TW/g' {} \;
+          find Galactifun -name config.yml -exec sed -i 's/zh-CN/zh-TW/g' {} \;
 
       - name: Build Java project
         run: |
-          mvn package --file pom.xml
+          cd Galactifun
+          mvn package
 
       - name: Upload JAR as Artifact
         uses: actions/upload-artifact@v4
         with:
           name: built-jar
-          path: target/*.jar
+          path: Galactifun/target/*.jar

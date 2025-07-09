@@ -8,8 +8,6 @@ on:
 jobs:
   sync-and-build:
     runs-on: ubuntu-latest
-    env:
-      JITPACK_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
       - name: Setup Java (Zulu, Maven cache)
@@ -28,9 +26,10 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Pull ExoticGarden from upstream
+      - name: Pull from upstream
         run: |
           git clone https://github.com/SlimefunGuguProject/ExoticGarden.git
+          cd ExoticGarden
 
       - name: Install OpenCC
         run: sudo apt-get update && sudo apt-get install -y opencc
@@ -46,24 +45,10 @@ jobs:
         run: |
           find ExoticGarden -name config.yml -exec sed -i 's/zh-CN/zh-TW/g' {} \;
 
-      - name: Configure Maven authentication for JitPack
-        run: |
-          mkdir -p ~/.m2
-          cat <<EOF > ~/.m2/settings.xml
-          <settings>
-            <servers>
-              <server>
-                <id>jitpack.io</id>
-                <username>${env.JITPACK_TOKEN}</username>
-                <password>${env.JITPACK_TOKEN}</password>
-              </server>
-            </servers>
-          </settings>
-          EOF
-
       - name: Build Java project
         run: |
-          mvn package --file ExoticGarden/pom.xml
+          cd ExoticGarden
+          mvn package --file pom.xml
 
       - name: Upload JAR as Artifact
         uses: actions/upload-artifact@v4

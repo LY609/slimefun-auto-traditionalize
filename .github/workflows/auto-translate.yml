@@ -2,8 +2,8 @@ name: Sync, Convert, and Build
 
 on:
   schedule:
-    - cron: '0 0 1 * *'
-  workflow_dispatch:
+    - cron: '0 0 1 * *'  # 每月1日自動執行
+  workflow_dispatch:      # 允許手動觸發
 
 jobs:
   sync-and-build:
@@ -18,7 +18,7 @@ jobs:
           java-package: jdk
           architecture: x64
 
-      - name: Checkout your repository
+      - name: Checkout
         uses: actions/checkout@v3
 
       - name: Setup Git
@@ -26,30 +26,32 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Clone Galactifun
-        run: git clone https://github.com/SlimefunGuguProject/Galactifun.git
+      - name: Pull from upstream
+        run: |
+          git clone https://github.com/SlimefunGuguProject/FoxyMachines.git
+          cd FoxyMachines
 
       - name: Install OpenCC
         run: sudo apt-get update && sudo apt-get install -y opencc
 
       - name: Convert .java & .yml to Traditional Chinese (Taiwan)
         run: |
-          find Galactifun -type f \( -name "*.java" -o -name "*.yml" \) -print \
+          find FoxyMachines -type f \( -name "*.java" -o -name "*.yml" \) -print \
             | while read file; do
                 opencc -i "$file" -o "$file.tmp" -c s2twp.json && mv "$file.tmp" "$file"
               done
 
       - name: Replace zh-CN with zh-TW in config.yml
         run: |
-          find Galactifun -name config.yml -exec sed -i 's/zh-CN/zh-TW/g' {} \;
+          find FoxyMachines -name config.yml -exec sed -i 's/zh-CN/zh-TW/g' {} \;
 
       - name: Build Java project
         run: |
-          cd Galactifun
-          mvn package
+          cd FoxyMachines
+          mvn package --file pom.xml
 
       - name: Upload JAR as Artifact
         uses: actions/upload-artifact@v4
         with:
           name: built-jar
-          path: Galactifun/target/*.jar
+          path: FoxyMachines/target/*.jar

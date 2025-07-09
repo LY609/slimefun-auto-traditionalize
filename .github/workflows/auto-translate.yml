@@ -28,30 +28,30 @@ jobs:
 
       - name: Pull from upstream
         run: |
-          git clone https://github.com/SlimefunGuguProject/ExtraTools.git
-          cd ExtraTools
+          git clone https://github.com/SlimefunGuguProject/ExtraGear.git
+          cd ExtraGear
 
       - name: Install OpenCC
         run: sudo apt-get update && sudo apt-get install -y opencc
 
       - name: Convert .java & .yml to Traditional Chinese (Taiwan)
         run: |
-          find ExtraTools -type f \( -name "*.java" -o -name "*.yml" \) -print \
+          find ExtraGear -type f \( -name "*.java" -o -name "*.yml" \) -print \
             | while read file; do
                 opencc -i "$file" -o "$file.tmp" -c s2twp.json && mv "$file.tmp" "$file"
               done
 
       - name: Replace zh-CN with zh-TW in config.yml
         run: |
-          find ExtraTools -name config.yml -exec sed -i 's/zh-CN/zh-TW/g' {} \;
+          find ExtraGear -name config.yml -exec sed -i 's/zh-CN/zh-TW/g' {} \;
 
       - name: Build Java project
         run: |
-          cd ExtraTools
+          cd ExtraGear
           mvn package --file pom.xml
 
       - name: Upload JAR as Artifact
         uses: actions/upload-artifact@v4
         with:
           name: built-jar
-          path: ExtraTools/target/*.jar
+          path: ExtraGear/target/*.jar

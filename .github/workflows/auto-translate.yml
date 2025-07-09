@@ -28,30 +28,32 @@ jobs:
 
       - name: Pull from upstream
         run: |
-          git clone https://github.com/SlimefunGuguProject/ExoticGarden.git
-          cd ExoticGarden
+          git clone https://github.com/SlimefunGuguProject/TranscEndence.git
+          cd TranscEndence
+          rsync -a ./ ../
+          cd ..
+          rm -rf TranscEndence
 
       - name: Install OpenCC
         run: sudo apt-get update && sudo apt-get install -y opencc
 
       - name: Convert .java & .yml to Traditional Chinese (Taiwan)
         run: |
-          find ExoticGarden -type f \( -name "*.java" -o -name "*.yml" \) -print \
+          find . -type f \( -name "*.java" -o -name "*.yml" \) -print \
             | while read file; do
                 opencc -i "$file" -o "$file.tmp" -c s2twp.json && mv "$file.tmp" "$file"
               done
 
       - name: Replace zh-CN with zh-TW in config.yml
         run: |
-          find ExoticGarden -name config.yml -exec sed -i 's/zh-CN/zh-TW/g' {} \;
+          find . -name config.yml -exec sed -i 's/zh-CN/zh-TW/g' {} \;
 
       - name: Build Java project
         run: |
-          cd ExoticGarden
           mvn package --file pom.xml
 
       - name: Upload JAR as Artifact
         uses: actions/upload-artifact@v4
         with:
           name: built-jar
-          path: ExoticGarden/target/*.jar
+          path: target/*.jar

@@ -43,4 +43,4 @@ jobs:
           find Galactifun -name config.yml -exec sed -i 's/zh-CN/zh-TW/g' {} \;
 
       - name: Make gradlew executable
-        run: chmo
+        run: chmod

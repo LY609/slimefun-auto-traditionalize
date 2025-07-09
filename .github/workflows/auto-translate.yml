@@ -2,15 +2,15 @@ name: Sync, Convert, and Build
 
 on:
   schedule:
-    - cron: '0 0 1 * *'
-  workflow_dispatch:
+    - cron: '0 0 1 * *'  # 每月 1 號 00:00 執行
+  workflow_dispatch:      # 手動觸發支援
 
 jobs:
   sync-and-build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Setup Java (Zulu, Gradle)
+      - name: Setup Java (Zulu 17)
         uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
@@ -20,7 +20,7 @@ jobs:
       - name: Checkout your repository
         uses: actions/checkout@v3
 
-      - name: Setup Git
+      - name: Setup Git identity
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
@@ -43,15 +43,4 @@ jobs:
           find Galactifun -name config.yml -exec sed -i 's/zh-CN/zh-TW/g' {} \;
 
       - name: Make gradlew executable
-        run: chmod +x Galactifun/gradlew
-
-      - name: Build Java project (Gradle)
-        run: |
-          cd Galactifun
-          ./gradlew build
-
-      - name: Upload JAR as Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: built-jar
-          path: Galactifun/build/libs/*.jar
+        run: chmo

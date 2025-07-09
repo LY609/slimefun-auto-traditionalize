@@ -2,8 +2,8 @@ name: Sync, Convert, and Build
 
 on:
   schedule:
-    - cron: '0 0 1 * *'  # 每月 1 號執行
-  workflow_dispatch:      # 支援手動觸發
+    - cron: '0 0 1 * *'
+  workflow_dispatch:
 
 jobs:
   sync-and-build:
@@ -28,30 +28,30 @@ jobs:
 
       - name: Pull from upstream
         run: |
-          git clone https://github.com/SlimefunGuguProject/FoxyMachines.git
-          cd FoxyMachines
+          git clone https://github.com/SlimefunGuguProject/ExtraTools.git
+          cd ExtraTools
 
       - name: Install OpenCC
         run: sudo apt-get update && sudo apt-get install -y opencc
 
       - name: Convert .java & .yml to Traditional Chinese (Taiwan)
         run: |
-          find FoxyMachines -type f \( -name "*.java" -o -name "*.yml" \) -print \
+          find ExtraTools -type f \( -name "*.java" -o -name "*.yml" \) -print \
             | while read file; do
                 opencc -i "$file" -o "$file.tmp" -c s2twp.json && mv "$file.tmp" "$file"
               done
 
       - name: Replace zh-CN with zh-TW in config.yml
         run: |
-          find FoxyMachines -name config.yml -exec sed -i 's/zh-CN/zh-TW/g' {} \;
+          find ExtraTools -name config.yml -exec sed -i 's/zh-CN/zh-TW/g' {} \;
 
-      - name: Build Java project with Maven
+      - name: Build Java project
         run: |
-          cd FoxyMachines
+          cd ExtraTools
           mvn package --file pom.xml
 
       - name: Upload JAR as Artifact
         uses: actions/upload-artifact@v4
         with:
           name: built-jar
-          path: FoxyMachines/target/*.jar
+          path: ExtraTools/target/*.jar

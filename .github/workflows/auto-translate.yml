@@ -10,12 +10,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Setup Java (Zulu, Maven cache)
+      - name: Setup Java (Zulu, Gradle)
         uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
-          java-version: 23
-          java-package: jdk
+          java-version: 17
           architecture: x64
 
       - name: Checkout your repository
@@ -27,8 +26,7 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
       - name: Clone Galactifun
-        run: |
-          git clone https://github.com/SlimefunGuguProject/Galactifun.git
+        run: git clone https://github.com/SlimefunGuguProject/Galactifun.git
 
       - name: Install OpenCC
         run: sudo apt-get update && sudo apt-get install -y opencc
@@ -44,13 +42,16 @@ jobs:
         run: |
           find Galactifun -name config.yml -exec sed -i 's/zh-CN/zh-TW/g' {} \;
 
-      - name: Build Java project
+      - name: Make gradlew executable
+        run: chmod +x Galactifun/gradlew
+
+      - name: Build Java project (Gradle)
         run: |
           cd Galactifun
-          mvn package
+          ./gradlew build
 
       - name: Upload JAR as Artifact
         uses: actions/upload-artifact@v4
         with:
           name: built-jar
-          path: Galactifun/target/*.jar
+          path: Galactifun/build/libs/*.jar

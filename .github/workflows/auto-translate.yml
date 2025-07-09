@@ -50,7 +50,6 @@ jobs:
           cd ExoticGarden
           mvn package --file pom.xml
 
-
       - name: Upload JAR as Artifact
         uses: actions/upload-artifact@v4
         with:

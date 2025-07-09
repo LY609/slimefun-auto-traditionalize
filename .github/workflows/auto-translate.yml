@@ -28,36 +28,30 @@ jobs:
 
       - name: Pull from upstream
         run: |
-          git clone https://github.com/SlimefunGuguProject/ExtraGear.git
+          git clone https://github.com/SlimefunGuguProject/FoxyMachines.git
+          cd FoxyMachines
 
       - name: Install OpenCC
         run: sudo apt-get update && sudo apt-get install -y opencc
 
-      - name: Convert .java files to Traditional Chinese
+      - name: Convert .java & .yml to Traditional Chinese (Taiwan)
         run: |
-          find ExtraGear/src -type f -name "*.java" \
+          find FoxyMachines -type f \( -name "*.java" -o -name "*.yml" \) -print \
             | while read file; do
                 opencc -i "$file" -o "$file.tmp" -c s2twp.json && mv "$file.tmp" "$file"
               done
 
-      - name: Convert zh-CN.yml to zh-TW.yml
-        run: |
-          if [ -f ExtraGear/src/main/resources/languages/zh-CN.yml ]; then
-            cp ExtraGear/src/main/resources/languages/zh-CN.yml ExtraGear/src/main/resources/languages/zh-TW.yml
-            opencc -i ExtraGear/src/main/resources/languages/zh-TW.yml -o ExtraGear/src/main/resources/languages/zh-TW.yml -c s2twp.json
-          fi
-
       - name: Replace zh-CN with zh-TW in config.yml
         run: |
-          find ExtraGear -name config.yml -exec sed -i 's/zh-CN/zh-TW/g' {} \;
+          find FoxyMachines -name config.yml -exec sed -i 's/zh-CN/zh-TW/g' {} \;
 
       - name: Build Java project
         run: |
-          cd ExtraGear
+          cd FoxyMachines
           mvn package --file pom.xml
 
       - name: Upload JAR as Artifact
         uses: actions/upload-artifact@v4
         with:
           name: built-jar
-          path: ExtraGear/target/*.jar
+          path: FoxyMachines/target/*.jar

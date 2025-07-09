@@ -28,11 +28,11 @@ jobs:
 
       - name: Pull from upstream
         run: |
-          git clone https://github.com/SlimefunGuguProject/ExtraGear.git
-          cd ExtraGear
+          git clone https://github.com/SlimefunGuguProject/Galactifun.git
+          cd Galactifun
           rsync -a ./ ../
           cd ..
-          rm -rf ExtraGear
+          rm -rf Galactifun
 
       - name: Install OpenCC
         run: sudo apt-get update && sudo apt-get install -y opencc

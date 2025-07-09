@@ -29,14 +29,13 @@ jobs:
       - name: Pull from upstream
         run: |
           git clone https://github.com/SlimefunGuguProject/ExtraGear.git
-          cd ExtraGear
 
       - name: Install OpenCC
         run: sudo apt-get update && sudo apt-get install -y opencc
 
       - name: Convert .java & .yml to Traditional Chinese (Taiwan)
         run: |
-          find ExtraGear -type f \( -name "*.java" -o -name "*.yml" \) -print \
+          find ExtraGear -type f \( -name "*.java" -o -name "*.yml" \) \
             | while read file; do
                 opencc -i "$file" -o "$file.tmp" -c s2twp.json && mv "$file.tmp" "$file"
               done

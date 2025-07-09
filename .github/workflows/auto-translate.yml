@@ -2,46 +2,56 @@ name: Sync, Convert, and Build
 
 on:
   schedule:
-    - cron: '0 0 1 * *'  # 每月 1 號 00:00 執行
-  workflow_dispatch:      # 手動觸發支援
+    - cron: '0 0 1 * *'  # 每月 1 號執行
+  workflow_dispatch:      # 支援手動觸發
 
 jobs:
   sync-and-build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Setup Java (Zulu 17)
+      - name: Setup Java (Zulu, Maven cache)
         uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
-          java-version: 17
+          java-version: 23
+          java-package: jdk
           architecture: x64
 
-      - name: Checkout your repository
+      - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Setup Git identity
+      - name: Setup Git
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Clone Galactifun
-        run: git clone https://github.com/SlimefunGuguProject/Galactifun.git
+      - name: Pull from upstream
+        run: |
+          git clone https://github.com/SlimefunGuguProject/FoxyMachines.git
+          cd FoxyMachines
 
       - name: Install OpenCC
         run: sudo apt-get update && sudo apt-get install -y opencc
 
       - name: Convert .java & .yml to Traditional Chinese (Taiwan)
         run: |
-          find Galactifun -type f \( -name "*.java" -o -name "*.yml" \) -print \
+          find FoxyMachines -type f \( -name "*.java" -o -name "*.yml" \) -print \
             | while read file; do
                 opencc -i "$file" -o "$file.tmp" -c s2twp.json && mv "$file.tmp" "$file"
               done
 
       - name: Replace zh-CN with zh-TW in config.yml
         run: |
-          find Galactifun -name config.yml -exec sed -i 's/zh-CN/zh-TW/g' {} \;
+          find FoxyMachines -name config.yml -exec sed -i 's/zh-CN/zh-TW/g' {} \;
 
-      - name: Make gradlew executable
-        run: chmod +x ./gradlew
+      - name: Build Java project with Maven
+        run: |
+          cd FoxyMachines
+          mvn package --file pom.xml
 
+      - name: Upload JAR as Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: built-jar
+          path: FoxyMachines/target/*.jar

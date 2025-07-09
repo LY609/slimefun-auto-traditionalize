@@ -48,7 +48,7 @@ jobs:
       - name: Build Java project
         run: |
           cd ExoticGarden
-          mvn package --file ExoticGarden/pom.xml
+          mvn package --file pom.xml
 
       - name: Upload JAR as Artifact
         uses: actions/upload-artifact@v4

@@ -28,30 +28,30 @@ jobs:
 
       - name: Pull from upstream
         run: |
-          git clone https://github.com/SlimefunGuguProject/FoxyMachines.git
-          cd FoxyMachines
+          git clone https://github.com/SlimefunGuguProject/InfinityExpansion.git
+          cd InfinityExpansion
 
       - name: Install OpenCC
         run: sudo apt-get update && sudo apt-get install -y opencc
 
       - name: Convert .java & .yml to Traditional Chinese (Taiwan)
         run: |
-          find FoxyMachines -type f \( -name "*.java" -o -name "*.yml" \) -print \
+          find InfinityExpansion -type f \( -name "*.java" -o -name "*.yml" \) -print \
             | while read file; do
                 opencc -i "$file" -o "$file.tmp" -c s2twp.json && mv "$file.tmp" "$file"
               done
 
       - name: Replace zh-CN with zh-TW in config.yml
         run: |
-          find FoxyMachines -name config.yml -exec sed -i 's/zh-CN/zh-TW/g' {} \;
+          find InfinityExpansion -name config.yml -exec sed -i 's/zh-CN/zh-TW/g' {} \;
 
       - name: Build Java project
         run: |
-          cd FoxyMachines
+          cd InfinityExpansion
           mvn package --file pom.xml
 
       - name: Upload JAR as Artifact
         uses: actions/upload-artifact@v4
         with:
           name: built-jar
-          path: FoxyMachines/target/*.jar
+          path: InfinityExpansion/target/*.jar

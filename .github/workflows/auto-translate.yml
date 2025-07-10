@@ -5,6 +5,9 @@ on:
     - cron: '0 0 1 * *'
   workflow_dispatch:
 
+env:
+  JITPACK_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
 jobs:
   sync-and-build:
     runs-on: ubuntu-latest
@@ -44,6 +47,21 @@ jobs:
       - name: Replace zh-CN with zh-TW in config.yml
         run: |
           find Gastronomicon -name config.yml -exec sed -i 's/zh-CN/zh-TW/g' {} \;
+
+      - name: Set up Maven settings.xml for JitPack authentication
+        run: |
+          mkdir -p ~/.m2
+          cat > ~/.m2/settings.xml <<EOF
+          <settings>
+            <servers>
+              <server>
+                <id>jitpack.io</id>
+                <username>${env.JITPACK_TOKEN}</username>
+                <password>${env.JITPACK_TOKEN}</password>
+              </server>
+            </servers>
+          </settings>
+          EOF
 
       - name: Build Java project
         run: |

@@ -5,9 +5,6 @@ on:
     - cron: '0 0 1 * *'
   workflow_dispatch:
 
-env:
-  JITPACK_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
 jobs:
   sync-and-build:
     runs-on: ubuntu-latest
@@ -31,45 +28,30 @@ jobs:
 
       - name: Pull from upstream
         run: |
-          git clone https://github.com/SlimefunGuguProject/Gastronomicon.git
-          cd Gastronomicon
+          git clone https://github.com/SlimefunGuguProject/Quaptics.git
+          cd Quaptics
 
       - name: Install OpenCC
         run: sudo apt-get update && sudo apt-get install -y opencc
 
       - name: Convert .java & .yml to Traditional Chinese (Taiwan)
         run: |
-          find Gastronomicon -type f \( -name "*.java" -o -name "*.yml" \) -print \
+          find Quaptics -type f \( -name "*.java" -o -name "*.yml" \) -print \
             | while read file; do
                 opencc -i "$file" -o "$file.tmp" -c s2twp.json && mv "$file.tmp" "$file"
               done
 
       - name: Replace zh-CN with zh-TW in config.yml
         run: |
-          find Gastronomicon -name config.yml -exec sed -i 's/zh-CN/zh-TW/g' {} \;
-
-      - name: Set up Maven settings.xml for JitPack authentication
-        run: |
-          mkdir -p ~/.m2
-          cat > ~/.m2/settings.xml <<EOF
-          <settings>
-            <servers>
-              <server>
-                <id>jitpack.io</id>
-                <username>${env.JITPACK_TOKEN}</username>
-                <password>${env.JITPACK_TOKEN}</password>
-              </server>
-            </servers>
-          </settings>
-          EOF
+          find Quaptics -name config.yml -exec sed -i 's/zh-CN/zh-TW/g' {} \;
 
       - name: Build Java project
         run: |
-          cd Gastronomicon
+          cd Quaptics
           mvn package --file pom.xml
 
       - name: Upload JAR as Artifact
         uses: actions/upload-artifact@v4
         with:
           name: built-jar
-          path: Gastronomicon/target/*.jar
+          path: Quaptics/target/*.jar
